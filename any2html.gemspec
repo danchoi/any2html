@@ -5,7 +5,7 @@ require 'any2html'
 
 Gem::Specification.new do |s|
   s.name        = "any2html"
-  s.version     = '0.0.1'
+  s.version     = '0.0.2'
   s.platform    = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.9.0'
 

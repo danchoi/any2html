@@ -1,8 +1,46 @@
-require 'any2html'
+#!/usr/bin/env ruby
+require 'bluecloth'
+require 'RedCloth'
+require 'sinatra'
 
-if ARGV[0]
-  Any2html.browse(*ARGV)
-else
-  Any2html.browse Dir.glob('*')
+map1 = {
+  BlueCloth => %w(md markdown),
+  RedCloth => %w(textile)
+}
+map2 = map1.invert.inject ({}) {|m, (k,v)| k.each{|k1| m[k1] = v};m}
+
+
+rootdir = ARGV[0] || '.'
+# TODO dry this up
+files = `find #{rootdir} -name '*.md' -o -name '*.markdown' -o -name '*.textile' `.split(/\n/)
+$sources = files.inject({}) do |m,file|
+  ext = File.extname(file)[1..-1]
+  if (formatter = map2[ext])
+    m[file] = { 
+      file: file, 
+      formatter: formatter
+    }
+  end
+  m
 end
+
+require 'haml'
+
+get '/' do
+  haml :index
+end
+
+get '*' do
+  file = params[:splat][0]
+  $sources[file][:html] ||= $sources[file][:formatter].new(File.read(file)).to_html
+end
+
+fork { system('open http://localhost:4567') }
+__END__
+
+@@index
+%ul
+  - $sources.each do |k,v|
+    %li
+      %a{href:k}=k
 

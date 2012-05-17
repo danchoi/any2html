@@ -5,7 +5,7 @@ require 'any2html'
 
 Gem::Specification.new do |s|
   s.name        = "any2html"
-  s.version     = Any2html::VERSION
+  s.version     = '0.0.1'
   s.platform    = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.9.0'
 
@@ -24,5 +24,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency 'RedCloth'
-  s.add_dependency 'maraku'
+  s.add_dependency 'bluecloth'
+  s.add_dependency 'haml'
 end

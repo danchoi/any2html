@@ -3,8 +3,8 @@ require 'bluecloth'
 require 'RedCloth'
 require 'sinatra'
 require 'haml'
-
-
+require 'textile_extensions'
+RedCloth.send(:include, RailsGuides::TextileExtensions)
 
 class Any2html < Sinatra::Application
   map1 = {

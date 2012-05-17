@@ -2,40 +2,44 @@
 require 'bluecloth'
 require 'RedCloth'
 require 'sinatra'
-
-map1 = {
-  BlueCloth => %w(md markdown),
-  RedCloth => %w(textile)
-}
-map2 = map1.invert.inject ({}) {|m, (k,v)| k.each{|k1| m[k1] = v};m}
-
-
-rootdir = ARGV[0] || '.'
-# TODO dry this up
-files = `find #{rootdir} -name '*.md' -o -name '*.markdown' -o -name '*.textile' `.split(/\n/)
-$sources = files.inject({}) do |m,file|
-  ext = File.extname(file)[1..-1]
-  if (formatter = map2[ext])
-    m[file] = { 
-      file: file, 
-      formatter: formatter
-    }
-  end
-  m
-end
-
 require 'haml'
 
-get '/' do
-  haml :index
-end
 
-get '*' do
-  file = params[:splat][0]
-  $sources[file][:html] ||= $sources[file][:formatter].new(File.read(file)).to_html
-end
 
-fork { system('open http://localhost:4567') }
+class Any2html < Sinatra::Application
+  map1 = {
+    BlueCloth => %w(md markdown),
+    RedCloth => %w(textile)
+  }
+  map2 = map1.invert.inject ({}) {|m, (k,v)| k.each{|k1| m[k1] = v};m}
+  rootdir = ARGV[0] || '.'
+  # TODO dry this up
+  files = `find #{rootdir} -name '*.md' -o -name '*.markdown' -o -name '*.textile' `.split(/\n/)
+  $sources = files.inject({}) do |m,file|
+    ext = File.extname(file)[1..-1]
+    if (formatter = map2[ext])
+      m[file.sub(/^\./,'')] = { 
+        filepath: file, 
+        formatter: formatter
+      }
+    end
+    m
+  end
+
+  get '/' do
+    haml :index
+  end
+
+  get '*' do
+    file = params[:splat][0]
+    x = $sources[file]
+    x[:html] ||= x[:formatter].new(File.read(x[:filepath])).to_html
+  end
+
+  fork { system('open http://localhost:4567') }
+  run!
+
+end
 __END__
 
 @@index

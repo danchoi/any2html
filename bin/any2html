@@ -1,0 +1,8 @@
+require 'any2html'
+
+if ARGV[0]
+  Any2html.browse(*ARGV)
+else
+  Any2html.browse Dir.glob('*')
+end
+
